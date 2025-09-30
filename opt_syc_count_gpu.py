@@ -10,7 +10,17 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from scipy.stats import wasserstein_distance
+gpus = tf.config.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
 
+with open("gpu_check.txt", "w") as f:
+    if gpus:
+        f.write("GPU detected: " + str(gpus) + "\n")
+        f.write("Using device: " + tf.test.gpu_device_name() + "\n")
+    else:
+        f.write("No GPU detected, running on CPU\n")
+        
 # --------- Config / Hyperparameters ---------
 CSV_PATH = "syn_norm_subset_2000_bins.csv"
 WINDOW_SIZE = 30
@@ -20,8 +30,11 @@ EPOCHS = 2000
 N_CRITIC = 5
 GP_WEIGHT = 10.0
 LEARNING_RATE = 1e-4
-CHECKPOINT_DIR = "checkpoints"
 SAVE_EVERY = 20
+CHECKPOINT_DIR = "checkpoints"
+PLOT_DIR = "plots"
+os.makedirs(CHECKPOINT_DIR, exist_ok=True)
+os.makedirs(PLOT_DIR, exist_ok=True)
 SEED = 1234
 
 tf.random.set_seed(SEED)
@@ -211,6 +224,7 @@ for epoch in range(1, EPOCHS + 1):
     emd = distribution_distance(series[:len(generated_data)], generated_data)
     emd_history.append(emd)
 
+
     if epoch % 2 == 0 or epoch == 1:
         print(f'Epoch {epoch}/{EPOCHS} | C_loss(avg) {epoch_c_loss:.6f} | GP(avg) {epoch_gp:.6f} | G_loss(avg) {epoch_g_loss:.6f} | EMD {emd:.6f}')
 
@@ -224,12 +238,60 @@ for epoch in range(1, EPOCHS + 1):
 end_time = time.time()
 print('Training finished. Total time (s):', end_time - start_time)
 
-# Save final weights
-os.makedirs(CHECKPOINT_DIR, exist_ok=True)
-generator.save_weights(os.path.join(CHECKPOINT_DIR, 'generator_final.weights.h5'))
-critic.save_weights(os.path.join(CHECKPOINT_DIR, 'critic_final.weights.h5'))
+# Save final
+final_gen = os.path.join(CHECKPOINT_DIR, "generator_final.weights.h5")
+final_crit = os.path.join(CHECKPOINT_DIR, "critic_final.weights.h5")
+generator.save_weights(final_gen)
+critic.save_weights(final_crit)
+print("Final checkpoints saved.")
 
-# Optionally save training histories
-np.save('critic_loss_history.npy', np.array(critic_loss_history))
-np.save('generator_loss_history.npy', np.array(generator_loss_history))
-np.save('emd_history.npy', np.array(emd_history))
+
+# Convert histories to arrays
+critic_loss = np.array(critic_loss_history)
+generator_loss = np.array(generator_loss_history)
+emd_avg = np.array(emd_history)
+
+
+# Moving averages for smoothing
+window = 50
+if len(generator_loss) >= window:
+generator_ma = np.convolve(generator_loss, np.ones(window)/window, mode='valid')
+critic_ma = np.convolve(critic_loss, np.ones(window)/window, mode='valid')
+emd_ma = np.convolve(emd_avg, np.ones(window)/window, mode='valid')
+else:
+generator_ma = generator_loss
+critic_ma = critic_loss
+emd_ma = emd_avg
+
+
+# Plot losses
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 4))
+
+
+axes[0].plot(critic_loss, color='black', alpha=0.2)
+axes[0].plot(generator_loss, color='black', alpha=0.2)
+axes[0].plot(range(window-1, window-1+len(critic_ma)), critic_ma, label='Average Critic Loss', color='blue')
+axes[0].plot(range(window-1, window-1+len(generator_ma)), generator_ma, label='Average Generator Loss', color='orange')
+axes[0].set_ylabel('Loss')
+axes[0].legend()
+axes[0].grid()
+
+
+axes[1].plot(emd_avg, color='red', linewidth=0.5, alpha=0.5)
+axes[1].plot(range(window-1, window-1+len(emd_ma)), emd_ma, label='EMD', color='red')
+axes[1].set_ylabel('EMD')
+axes[1].legend()
+axes[1].grid()
+
+
+plt.tight_layout()
+plot_path = os.path.join(PLOT_DIR, "training_history.svg")
+plt.savefig(plot_path, format="svg")
+plt.close()
+print(f"Saved training history plot: {plot_path}")
+
+
+# Save raw histories
+np.save('critic_loss_history.npy', critic_loss)
+np.save('generator_loss_history.npy', generator_loss)
+np.save('emd_history.npy', emd_avg)
