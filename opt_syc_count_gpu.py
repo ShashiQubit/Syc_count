@@ -255,13 +255,13 @@ emd_avg = np.array(emd_history)
 # Moving averages for smoothing
 window = 50
 if len(generator_loss) >= window:
-generator_ma = np.convolve(generator_loss, np.ones(window)/window, mode='valid')
-critic_ma = np.convolve(critic_loss, np.ones(window)/window, mode='valid')
-emd_ma = np.convolve(emd_avg, np.ones(window)/window, mode='valid')
+    generator_ma = np.convolve(generator_loss, np.ones(window)/window, mode='valid')
+    critic_ma = np.convolve(critic_loss, np.ones(window)/window, mode='valid')
+    emd_ma = np.convolve(emd_avg, np.ones(window)/window, mode='valid')
 else:
-generator_ma = generator_loss
-critic_ma = critic_loss
-emd_ma = emd_avg
+    generator_ma = generator_loss
+    critic_ma = critic_loss
+    emd_ma = emd_avg
 
 
 # Plot losses
