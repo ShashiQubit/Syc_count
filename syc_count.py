@@ -315,6 +315,16 @@ gan.train_wgan_gp(gan_data, scaled, scaled, num_elements)
 exec_time_train = time.time() - start_time_train
 print(f'\nWGAN training completed. Training time: --- {exec_time_train/3600:.02f} hours ---')
 
+# Create a dictionary to store the arrays
+gan_metrics = {
+    'emd_avg': gan.emd_avg,
+    'generator_loss_avg': gan.generator_loss_avg,
+    'critic_loss_avg': gan.critic_loss_avg
+}
+
+# Save the dictionary to a file
+np.save('gan_metrics.npy', gan_metrics)
+
 critic_loss = tf.squeeze(gan.critic_loss_avg, axis=(1,2)).numpy()
 generator_loss = np.array(gan.generator_loss_avg)
 
