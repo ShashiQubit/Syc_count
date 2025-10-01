@@ -4,9 +4,9 @@
 #SBATCH --cpus-per-task=48
 #SBATCH --time=10:00:00
 #SBATCH --job-name=syc_gpu
-#SBATCH --partition=gpu
-#SBATCH --error=%J.err
-#SBATCH --output=%J.out
+#SBATCH --partition=small
+#SBATCH --error=syc.%J.err
+#SBATCH --output=syc.%J.out
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=shashi.kumar@iitgn.ac.in
 cd $SLURM_SUBMIT_DIR
