@@ -11,4 +11,4 @@
 #SBATCH --mail-user=shashi.kumar@iitgn.ac.in
 cd $SLURM_SUBMIT_DIR
 export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
-python3 asyc_count.py
+python3 -u asyc_count.py
