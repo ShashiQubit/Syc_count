@@ -27,7 +27,7 @@ import numpy as np
 import tensorflow as tf
 
 # Load the normalized syn_norm data
-syn_norm_data = pd.read_csv("syn_norm_subset_2000_bins.csv", index_col='time_bin')
+syn_norm_data = pd.read_csv("syn_norm_anomaly_window.csv", index_col='time_bin')
 
 # Extract the 'syn_norm' column as a numpy array
 syn_norm_series = syn_norm_data['syn_norm'].values.astype(float)
@@ -280,7 +280,7 @@ LATENT_DIM = 8
 WINDOW_SIZE = 30
 
 # training hyperparameters
-EPOCHS = 2000 #3000
+EPOCHS = 1000 #3000
 BATCH_SIZE = 32
 
 n_critic = 5 # number of iterations for the critic per epoch
