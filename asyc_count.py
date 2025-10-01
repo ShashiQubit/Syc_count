@@ -220,8 +220,8 @@ class WGAN_GP(tf.keras.Model):
 
             # checkpoint saving
             if (epoch + 1) % 20 == 0:
-                self.generator.save_weights(f"checkpoints/generator_epoch_WGAN_{epoch+1}.weights.h5")
-                self.critic.save_weights(f"checkpoints/critic_epoch_WGAN_{epoch+1}.weights.h5")
+                self.generator.save_weights(f"a_checkpoints/generator_epoch_WGAN_{epoch+1}.weights.h5")
+                self.critic.save_weights(f"a_checkpoints/critic_epoch_WGAN_{epoch+1}.weights.h5")
 
             # print progress every 100 epochs
             if epoch % 2 == 0 or epoch+1 == 3000:
@@ -316,14 +316,14 @@ exec_time_train = time.time() - start_time_train
 print(f'\nWGAN training completed. Training time: --- {exec_time_train/3600:.02f} hours ---')
 
 # Create a dictionary to store the arrays
-gan_metrics = {
+a_gan_metrics = {
     'emd_avg': gan.emd_avg,
     'generator_loss_avg': gan.generator_loss_avg,
     'critic_loss_avg': gan.critic_loss_avg
 }
 
 # Save the dictionary to a file
-np.save('gan_metrics.npy', gan_metrics)
+np.save('a_gan_metrics.npy', a_gan_metrics)
 
 critic_loss = tf.squeeze(gan.critic_loss_avg, axis=(1,2)).numpy()
 generator_loss = np.array(gan.generator_loss_avg)
@@ -362,5 +362,5 @@ axes[1].grid()
 
 # Adjusting the spacing between subplots
 plt.tight_layout()
-plt.savefig("plots/training_history (WGAN_iio).svg", format="svg")
+plt.savefig("a_plots/training_history.svg", format="svg")
 plt.close()
