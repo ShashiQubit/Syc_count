@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=48
 #SBATCH --time=10:00:00
-#SBATCH --job-name=syc_gpu
+#SBATCH --job-name=syc
 #SBATCH --partition=small
 #SBATCH --error=syc.%J.err
 #SBATCH --output=syc.%J.out
