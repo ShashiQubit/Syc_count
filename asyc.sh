@@ -4,7 +4,7 @@
 #SBATCH --cpus-per-task=48
 #SBATCH --time=10:00:00
 #SBATCH --job-name=syc_gpu
-#SBATCH --partition=gpu
+#SBATCH --partition=small
 #SBATCH --error=%J.err
 #SBATCH --output=%J.out
 #SBATCH --mail-type=ALL
